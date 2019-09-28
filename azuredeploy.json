@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "yourAlias": {
+      "type": "string"
+    },
+    "basePlanName": {
+      "type": "string",
+      "minLength": 5
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "D1"
+    },
+    "skuCapacity": {
+      "type": "int"
+    },
+    "baseSiteName": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-02-01",
+      "name": "[concat(parameters('youralias'), parameters('basePlanName'))]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "HostingPlan"
+      },
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "capacity": "[parameters('skuCapacity')]"
+      }
+    },
+    {
+      "apiVersion": "2018-02-01",
+      "name": "[concat(parameters('youralias'), parameters('baseSiteName'))]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "serverFarmId": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('youralias'), parameters('basePlanName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms/',concat(parameters('youralias'), parameters('basePlanName')))]"
+      ]
+    }
+
+  ],
+  "outputs": {}
+}
